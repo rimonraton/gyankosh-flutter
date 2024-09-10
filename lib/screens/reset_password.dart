@@ -1,50 +1,30 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gyankosh/apis/api.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+class ResetPassword extends StatefulWidget {
+  const ResetPassword({super.key});
 
   @override
-  _SignInState createState() => _SignInState();
+  ResetPasswordState createState() => ResetPasswordState();
 }
 
-class _SignInState extends State<SignIn> {
-  bool _obscureText = true;
-  // late String _password;
+class ResetPasswordState extends State<ResetPassword> {
   String errorMessage = "";
-  // Toggles the password show status
-  void _toggle() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    getPref();
-  }
-
-  var _loginStatus;
-  getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      _loginStatus = preferences.getString("email");
-    });
   }
 
   final _formKey = GlobalKey<FormState>();
-  late String email, password;
+  late String email;
   bool isLoading = false;
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
@@ -91,7 +71,7 @@ class _SignInState extends State<SignIn> {
                       height: 40,
                     ),
                     Text(
-                      "Sign In",
+                      "Recover Password",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.roboto(
                         textStyle: const TextStyle(
@@ -104,22 +84,7 @@ class _SignInState extends State<SignIn> {
                     const SizedBox(
                       height: 8,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "Learn With Fun 😋",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: Colors.white70,
-                              letterSpacing: 1,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+
                     const SizedBox(
                       height: 30,
                     ),
@@ -147,39 +112,6 @@ class _SignInState extends State<SignIn> {
                               },
                             ),
                             const SizedBox(
-                              height: 16,
-                            ),
-                            TextFormField(
-                              obscureText: _obscureText,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                              controller: _passwordController,
-                              decoration: InputDecoration(
-                                enabledBorder: const UnderlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white)),
-                                labelText: "Password",
-                                labelStyle: const TextStyle(
-                                    color: Colors.white70, fontSize: 20),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureText
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () {
-                                    setState(
-                                      () {
-                                        _obscureText = !_obscureText;
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
                               height: 20,
                             ),
 
@@ -200,17 +132,10 @@ class _SignInState extends State<SignIn> {
                                     if (isLoading) {
                                       return;
                                     }
-                                    if (_emailController.text.isEmpty ||
-                                        _passwordController.text.isEmpty) {
-                                      // _scaffoldKey.currentState.showSnackBar(SnackBar(content:Text("Please Fill all fileds")));
-                                      return;
-                                    }
-                                    login(_emailController.text,
-                                        _passwordController.text);
+                                    checkEmail(_emailController.text);
                                     setState(() {
                                       isLoading = true;
                                     });
-                                    //Navigator.pushReplacementNamed(context, "/home");
                                   },
                                   child: Container(
                                     alignment: Alignment.center,
@@ -223,7 +148,7 @@ class _SignInState extends State<SignIn> {
                                       borderRadius: BorderRadius.circular(50),
                                     ),
                                     child: Text(
-                                      "SIGN IN",
+                                      "RESET",
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.roboto(
                                           textStyle: const TextStyle(
@@ -257,45 +182,15 @@ class _SignInState extends State<SignIn> {
                     const SizedBox(
                       height: 20,
                     ),
-                    // const Text(
-                    //   "OR",
-                    //   style: TextStyle(fontSize: 14, color: Colors.white60),
-                    // ),
-                    // const SizedBox(
-                    //   height: 20,
-                    // ),
-                    // Image.asset(
-                    //   "assets/fingerprint.png",
-                    //   height: 36,
-                    //   width: 36,
-                    // ),
-
                     GestureDetector(
                       onTap: () {
-                        context.go('/signUp');
+                        context.go('/signIn');
                       },
                       child: Text(
-                        "Don't have an account?",
+                        "Back to Login",
                         style: GoogleFonts.roboto(
                             textStyle: const TextStyle(
                                 color: Colors.white70,
-                                fontSize: 13,
-                                decoration: TextDecoration.underline,
-                                letterSpacing: 0.5)),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        context.go('/resetPassword');
-                      },
-                      child: Text(
-                        "Forgot Your Password?",
-                        style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                                color: Colors.white30,
                                 fontSize: 13,
                                 decoration: TextDecoration.underline,
                                 letterSpacing: 0.5)),
@@ -309,54 +204,32 @@ class _SignInState extends State<SignIn> {
         ));
   }
 
-  login(email, password) async {
-    Map data = {'email': email, 'password': password};
-    print(data.toString());
-    var url = Uri.parse(loginUrl);
+  savePref(int verification, String email) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setInt("verification", verification);
+    preferences.setString("email", email);
+  }
+
+  checkEmail(email) async {
+    Map data = {'email': email};
+    var url = Uri.parse(resetPassword);
     final response = await http.post(url,
         headers: headersJson,
         body: data,
         encoding: Encoding.getByName("utf-8"));
-    // if (response.statusCode == 200) {
-    //   var user = jsonDecode(response.body);
-    //   print('Response from server -> $user');
-    //   print("Print User Id -> ${user['id']}");
-    // }else{
-    //   print('response.statusCode -> ${response.statusCode}');
-    // }
     setState(() {
       isLoading = false;
     });
-
-    // print('jsonDecode(response.body) ${response.statusCode} => ${jsonDecode(response.body)}');
-
     if (response.statusCode == 200) {
-      Map<String, dynamic> user = jsonDecode(response.body);
-      print('response body user => ${response.statusCode}');
-      savePref(1, user['name'], user['email'], user['id'], password);
-      // Navigator.pushReplacementNamed(context, "/dashboard");
-      context.go('/dashboard');
-      // _scaffoldKey.currentState.showSnackBar(SnackBar(content:Text("${resposne['message']}")));
+      Map user = jsonDecode(response.body);
+      print('jsonDecode(response.body) $user');
+      savePref(user['verification'], user['email']);
+      context.go('/updatePassword');
     } else {
       setState(() {
-        errorMessage = "These credentials do not match our records!";
+        errorMessage = "Email not found!";
       });
-      print('jsonDecode(response.body) ${jsonDecode(response.body)}');
-      // Map<String, dynamic> user = jsonDecode(response.body);
-      // print(" ${user['message']}");
-      // _scaffoldKey.currentState.showSnackBar(SnackBar(content:Text("Please try again!")));
+
     }
-  }
-
-  savePref(
-      int login, String name, String email, int id, String password) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-
-    preferences.setInt("login", login);
-    preferences.setString("name", name);
-    preferences.setString("email", email);
-    preferences.setString("password", password);
-    preferences.setString("id", id.toString());
-    // preferences.commit();
   }
 }

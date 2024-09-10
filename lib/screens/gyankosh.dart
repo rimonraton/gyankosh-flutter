@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
+import 'dart:math';
 import 'package:go_router/go_router.dart';
-import 'package:gyankosh/screens/qr.dart';
-import 'package:http/http.dart' as http;
-import 'package:gyankosh/apis/api.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -42,9 +37,14 @@ class _GyankoshState extends State<Gyankosh> {
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
-        title: const Text('Gyankosh - Learn with Fun'),
         // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
         actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              context.go('/');
+            },
+            child: Text('Gyankosh - Learn with Fun'),
+          ),
           NavigationControls(webViewController: _controller),
         ],
       ),
@@ -126,13 +126,21 @@ class _GyankoshState extends State<Gyankosh> {
 
   var authEmail = '';
   var authPassword = '';
+  var random = '';
   getAuthInfo() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       authEmail = preferences.getString("email")!;
       authPassword = preferences.getString("password")!;
+      random = getRandString(100);
       initWebView();
     });
+  }
+
+  String getRandString(int len) {
+    var random = Random();
+    var values = List<int>.generate(len, (i) =>  random.nextInt(255));
+    return base64UrlEncode(values);
   }
 
   void shareLink(url) {
@@ -161,7 +169,7 @@ class _GyankoshState extends State<Gyankosh> {
     }
 
     var loginUrl = Uri.parse(
-        'https://gyankosh.org/getLoginFromFlutter/$authPassword/$authEmail');
+        'https://gyankosh.org/getLoginFromFlutter/$random/$authPassword/$authEmail');
     debugPrint('loginUrl : $loginUrl');
 
     final WebViewController controller =

@@ -18,8 +18,13 @@ class Red extends StatelessWidget {
             const Text('Welcome to Flutter DeepLinking tutorial! '),
             MaterialButton(
               onPressed: () => context.go('/'),
-              color: Colors.blue,
+              color: Colors.white30,
               child: const Text('Home'),
+            ),
+            MaterialButton(
+              onPressed: () => context.go('/blue/123'),
+              color: Colors.blue,
+              child: const Text('Blue'),
             ),
           ],
         ),

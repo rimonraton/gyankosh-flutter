@@ -14,3 +14,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+[//]: # (C:\Users\USER\AppData\Local\Android\Sdk\platform-tools) 
+
+[//]: # (./adb shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d https://gyankosh.org/red)

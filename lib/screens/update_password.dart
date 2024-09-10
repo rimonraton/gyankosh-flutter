@@ -8,14 +8,14 @@ import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+class UpdatePassword extends StatefulWidget {
+  const UpdatePassword({super.key});
 
   @override
-  _SignInState createState() => _SignInState();
+  UpdatePasswordState createState() => UpdatePasswordState();
 }
 
-class _SignInState extends State<SignIn> {
+class UpdatePasswordState extends State<UpdatePassword> {
   bool _obscureText = true;
   // late String _password;
   String errorMessage = "";
@@ -29,21 +29,12 @@ class _SignInState extends State<SignIn> {
   @override
   void initState() {
     super.initState();
-    getPref();
-  }
-
-  var _loginStatus;
-  getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      _loginStatus = preferences.getString("email");
-    });
   }
 
   final _formKey = GlobalKey<FormState>();
-  late String email, password;
+  late String verification, password;
   bool isLoading = false;
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _verificationController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   @override
@@ -70,11 +61,11 @@ class _SignInState extends State<SignIn> {
                   children: <Widget>[
                     Center(
                         child: Image.asset(
-                      "assets/logoG.png",
-                      height: 200,
-                      width: 200,
-                      alignment: Alignment.center,
-                    )),
+                          "assets/logoG.png",
+                          height: 200,
+                          width: 200,
+                          alignment: Alignment.center,
+                        )),
                     const SizedBox(
                       height: 13,
                     ),
@@ -91,7 +82,7 @@ class _SignInState extends State<SignIn> {
                       height: 40,
                     ),
                     Text(
-                      "Sign In",
+                      "Update Password",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.roboto(
                         textStyle: const TextStyle(
@@ -134,20 +125,17 @@ class _SignInState extends State<SignIn> {
                               style: const TextStyle(
                                 color: Colors.white,
                               ),
-                              controller: _emailController,
+                              controller: _verificationController,
                               decoration: const InputDecoration(
                                   enabledBorder: UnderlineInputBorder(
                                       borderSide:
-                                          BorderSide(color: Colors.white)),
-                                  labelText: "Email",
+                                      BorderSide(color: Colors.white)),
+                                  labelText: "Verification Code",
                                   labelStyle: TextStyle(
                                       color: Colors.white70, fontSize: 20)),
                               onSaved: (val) {
-                                email = val!;
+                                verification = val!;
                               },
-                            ),
-                            const SizedBox(
-                              height: 16,
                             ),
                             TextFormField(
                               obscureText: _obscureText,
@@ -158,8 +146,8 @@ class _SignInState extends State<SignIn> {
                               decoration: InputDecoration(
                                 enabledBorder: const UnderlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.white)),
-                                labelText: "Password",
+                                    BorderSide(color: Colors.white)),
+                                labelText: "New Password",
                                 labelStyle: const TextStyle(
                                     color: Colors.white70, fontSize: 20),
                                 suffixIcon: IconButton(
@@ -171,7 +159,7 @@ class _SignInState extends State<SignIn> {
                                   ),
                                   onPressed: () {
                                     setState(
-                                      () {
+                                          () {
                                         _obscureText = !_obscureText;
                                       },
                                     );
@@ -200,12 +188,15 @@ class _SignInState extends State<SignIn> {
                                     if (isLoading) {
                                       return;
                                     }
-                                    if (_emailController.text.isEmpty ||
-                                        _passwordController.text.isEmpty) {
-                                      // _scaffoldKey.currentState.showSnackBar(SnackBar(content:Text("Please Fill all fileds")));
+                                    if (_passwordController.text.isEmpty ||
+                                        _passwordController.text.length <
+                                            8) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Password should be min 8 characters')),
+                                      );
                                       return;
                                     }
-                                    login(_emailController.text,
+                                    updatePasswordFnc(_verificationController.text,
                                         _passwordController.text);
                                     setState(() {
                                       isLoading = true;
@@ -223,7 +214,7 @@ class _SignInState extends State<SignIn> {
                                       borderRadius: BorderRadius.circular(50),
                                     ),
                                     child: Text(
-                                      "SIGN IN",
+                                      "UPDATE PASSWORD",
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.roboto(
                                           textStyle: const TextStyle(
@@ -239,12 +230,12 @@ class _SignInState extends State<SignIn> {
                                   top: 0,
                                   child: (isLoading)
                                       ? const Center(
-                                          child: SizedBox(
-                                              height: 26,
-                                              width: 26,
-                                              child: CircularProgressIndicator(
-                                                backgroundColor: Colors.green,
-                                              )))
+                                      child: SizedBox(
+                                          height: 26,
+                                          width: 26,
+                                          child: CircularProgressIndicator(
+                                            backgroundColor: Colors.green,
+                                          )))
                                       : Container(),
                                 )
                               ],
@@ -257,18 +248,6 @@ class _SignInState extends State<SignIn> {
                     const SizedBox(
                       height: 20,
                     ),
-                    // const Text(
-                    //   "OR",
-                    //   style: TextStyle(fontSize: 14, color: Colors.white60),
-                    // ),
-                    // const SizedBox(
-                    //   height: 20,
-                    // ),
-                    // Image.asset(
-                    //   "assets/fingerprint.png",
-                    //   height: 36,
-                    //   width: 36,
-                    // ),
 
                     GestureDetector(
                       onTap: () {
@@ -287,20 +266,6 @@ class _SignInState extends State<SignIn> {
                     const SizedBox(
                       height: 10,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        context.go('/resetPassword');
-                      },
-                      child: Text(
-                        "Forgot Your Password?",
-                        style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                                color: Colors.white30,
-                                fontSize: 13,
-                                decoration: TextDecoration.underline,
-                                letterSpacing: 0.5)),
-                      ),
-                    )
                   ],
                 ),
               ],
@@ -308,55 +273,47 @@ class _SignInState extends State<SignIn> {
           ),
         ));
   }
+  var verificationCode = 0;
+  var userEmail = '';
 
-  login(email, password) async {
-    Map data = {'email': email, 'password': password};
+  updatePasswordFnc(verification, password) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    verificationCode = preferences.getInt("verification")!;
+    userEmail = preferences.getString("email")!;
+    print('verification != verificationCode => $verification => $verificationCode');
+    if(int.parse(verification) != verificationCode){
+      print("Verification code not match!");
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Verification code not match! Please check your email for verification code.';
+      });
+      return;
+    }
+    Map data = {'email':userEmail, 'password': password};
     print(data.toString());
-    var url = Uri.parse(loginUrl);
+    var url = Uri.parse(updatePassword);
     final response = await http.post(url,
         headers: headersJson,
         body: data,
         encoding: Encoding.getByName("utf-8"));
-    // if (response.statusCode == 200) {
-    //   var user = jsonDecode(response.body);
-    //   print('Response from server -> $user');
-    //   print("Print User Id -> ${user['id']}");
-    // }else{
-    //   print('response.statusCode -> ${response.statusCode}');
-    // }
     setState(() {
       isLoading = false;
     });
-
-    // print('jsonDecode(response.body) ${response.statusCode} => ${jsonDecode(response.body)}');
-
+    print('jsonDecode(response.body) ${response.statusCode}');
     if (response.statusCode == 200) {
-      Map<String, dynamic> user = jsonDecode(response.body);
-      print('response body user => ${response.statusCode}');
-      savePref(1, user['name'], user['email'], user['id'], password);
-      // Navigator.pushReplacementNamed(context, "/dashboard");
+      Map user = jsonDecode(response.body);
+      print('jsonDecode(response.body) $user');
+      preferences.setInt("login", 1);
+      preferences.setString("password", password);
+
       context.go('/dashboard');
-      // _scaffoldKey.currentState.showSnackBar(SnackBar(content:Text("${resposne['message']}")));
     } else {
       setState(() {
-        errorMessage = "These credentials do not match our records!";
+        errorMessage = "Email not found!";
       });
-      print('jsonDecode(response.body) ${jsonDecode(response.body)}');
-      // Map<String, dynamic> user = jsonDecode(response.body);
-      // print(" ${user['message']}");
-      // _scaffoldKey.currentState.showSnackBar(SnackBar(content:Text("Please try again!")));
+
     }
+
   }
 
-  savePref(
-      int login, String name, String email, int id, String password) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-
-    preferences.setInt("login", login);
-    preferences.setString("name", name);
-    preferences.setString("email", email);
-    preferences.setString("password", password);
-    preferences.setString("id", id.toString());
-    // preferences.commit();
-  }
 }

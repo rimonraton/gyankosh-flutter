@@ -1,13 +1,14 @@
 import 'package:gyankosh/screens/blue.dart';
 import 'package:gyankosh/screens/challenge.dart';
 import 'package:gyankosh/screens/gyankosh.dart';
-import 'package:gyankosh/screens/qr.dart';
-// import 'package:gyankosh/screens/red.dart';
+import 'package:gyankosh/screens/red.dart';
+import 'package:gyankosh/screens/reset_password.dart';
 import 'package:gyankosh/screens/signin.dart';
 import 'package:gyankosh/screens/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:gyankosh/screens/home.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gyankosh/screens/update_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -42,6 +43,12 @@ class MyApp extends StatelessWidget {
         },
       ),
       GoRoute(
+        path: '/red',
+        builder: (context, GoRouterState state) {
+          return const Red();
+        },
+      ),
+      GoRoute(
         path: '/:game/:gid/:uid/share',
         builder: (context, GoRouterState state) {
           final url = state.uri;
@@ -63,12 +70,21 @@ class MyApp extends StatelessWidget {
         path: '/signUp',
         builder: (context, state) => const SignUp(),
       ),
+      GoRoute(
+        path: '/resetPassword',
+        builder: (context, state) => const ResetPassword(),
+      ),
+      GoRoute(
+        path: '/updatePassword',
+        builder: (context, state) => const UpdatePassword(),
+      ),
     ],
   );
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routerConfig: goRouter,
     );
   }

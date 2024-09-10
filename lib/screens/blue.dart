@@ -26,8 +26,13 @@ class Blue extends StatelessWidget {
             ),
             MaterialButton(
               onPressed: () => printEncrypt(),
-              color: Colors.red,
+              color: Colors.white,
               child: const Text('Encrypt'),
+            ),
+            MaterialButton(
+              onPressed: () => context.go('/red'),
+              color: Colors.red,
+              child: const Text('Red'),
             ),
 
           ],

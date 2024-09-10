@@ -328,12 +328,9 @@ class _SignUpState extends State<SignUp> {
 
     Map data = {'email': email, 'password': password, 'name': name};
     print(data.toString());
-    var url = Uri.parse(REGISTRATION);
+    var url = Uri.parse(registration);
     final response = await http.post(url,
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: headersJson,
         body: data,
         encoding: Encoding.getByName("utf-8"));
 
@@ -372,16 +369,6 @@ class _SignUpState extends State<SignUp> {
     preferences.setString("email", email);
     preferences.setString("password", password);
     preferences.setString("id", id.toString());
-    // preferences.commit();
   }
 
-  // savePref(int value, String name, String email, int id) async {
-  //   SharedPreferences preferences = await SharedPreferences.getInstance();
-  //
-  //   preferences.setInt("value", value);
-  //   preferences.setString("name", name);
-  //   preferences.setString("email", email);
-  //   preferences.setString("id", id.toString());
-  //   preferences.commit();
-  // }
 }
